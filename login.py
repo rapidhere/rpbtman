@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # Copyright (C) 2013 ~ 2014 rapidhere
 #
 # Author:     rapidhere@gmail.com
@@ -17,21 +19,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import urllib,urllib2,cookielib,copy,re
-import err
+import err,constant
 
 # Constant
 BaiduLoginURL = r"https://passport.baidu.com/v2/api/?login"
 BaiduLoginTokenURL = r"https://passport.baidu.com/v2/api/?getapi&class=login&tpl=mn&tangram=false"
-
-HTTPHeader = {
-    "Accept"            : "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Accept-Charset"    : "ISO-8859-1,utf-8;q=0.7,*;q=0.3",
-    "Accept-Language"   : "en-US,en;q=0.8",
-    "Content-Type"      : "application/x-www-form-urlencoded",
-    "User-Agent"        : "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.22 (KHTML, like Gecko) Ubuntu Chromium/25.0.1364.160 Chrome/25.0.1364.160 Safari/537.22",
-    "Connection"        : "keep-alive",
-    "Cache-Control"     : "max-age=0",
-}
 
 Datas = {
     "username"  : "",
@@ -84,22 +76,24 @@ class Login:
     """
     Set up the usrname and password and then login into baidu
     """
-    def __init__(self,usrname = '',psswrd = ''):
+    def __init__(self,opener,usrname = '',psswrd = ''):
+        self.opener = opener
         self.data = copy.deepcopy(Datas)
 
         self.set_username(usrname)
         self.set_password(psswrd)
 
-        self.cj = cookielib.CookieJar()
-        self.opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cj))
+        self.__has_login = False
 
     def set_username(self,usrname): self.data["username"] = usrname
     def set_password(self,psswrd): self.data["password"] = psswrd
 
-    def getToken(self):
+    def has_login(self): return self.__has_login
+
+    def get_token(self):
         req = urllib2.Request(
                 url = BaiduLoginURL,
-                headers = HTTPHeader,
+                headers = constant.HTTPHeader,
                 data = urllib.urlencode(self.data)
             )
         self.opener.open(req)
@@ -118,11 +112,11 @@ class Login:
             You have to enter the vertification code
             and that's would be awful beacause you can't get the vcode
         """
-        self.data["token"] = self.getToken()
+        self.data["token"] = self.get_token()
 
         req = urllib2.Request(
                 url = BaiduLoginURL,
-                headers = HTTPHeader,
+                headers = constant.HTTPHeader,
                 data = urllib.urlencode(self.data)
             )
 
@@ -142,9 +136,12 @@ class Login:
             else:
                 raise UnexpectedLoginError(error_code)
 
+        self.__has_login = True
+
 if __name__ == "__main__":
     try:
         log = Login("844122492","QQcd9412")
         log.sign_in()
     except err.EXC_rpbtman,x:
+        print sys.exc_info().exc_traceback
         print x.FormatStr()
