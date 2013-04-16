@@ -98,7 +98,7 @@ class Login:
             )
         self.opener.open(req)
 
-        buf = self.opener.open(BaiduLoginTokenURL).read().decode("utf-8")
+        buf = self.opener.open(BaiduLoginTokenURL).read()
         return re.findall("login_token='(\w+)'",buf)[0]
 
     def sign_in(self):
@@ -120,7 +120,7 @@ class Login:
                 data = urllib.urlencode(self.data)
             )
 
-        buf = self.opener.open(req).read().decode("utf-8")
+        buf = self.opener.open(req).read()
         error_code = re.findall("error\=(\d+)",buf)
 
         if error_code:

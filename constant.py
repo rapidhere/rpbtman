@@ -25,3 +25,5 @@ HTTPHeader = {
     "Connection"        : "keep-alive",
     "Cache-Control"     : "max-age=0",
 }
+
+CODEC = "utf-8"

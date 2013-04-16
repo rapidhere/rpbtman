@@ -33,7 +33,7 @@ class SignMan:
         self.opener = opener
 
     def get_tbs(self,kwd):
-        kwd = kwd.decode("utf-8").encode("gbk")
+        kwd = kwd.decode(constant.CODEC).encode("gbk")
         buf = self.opener.open("http://tieba.baidu.com/f?ie=utf-8&kw=" + urllib.quote(kwd)).read()
         return re.findall("PageData.tbs = \"(\w+)\"",buf)[0]
 
@@ -59,9 +59,10 @@ class SignMan:
             )
         if not ret:
             return
+
         ret = ret.groupdict()
         ret["no"] = int(ret["no"])
-        ret["error"] = eval("u'" + ret["error"] + "'")
+        ret["error"] = eval("u'" + ret["error"] + "'").encode(constant.CODEC)
         raise SignError(ret["no"],ret["error"])
 
 if __name__ == "__main__":

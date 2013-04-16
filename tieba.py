@@ -23,7 +23,7 @@ import httplib
 httplib.HTTPConnection._http_vsn = 10
 httplib.HTTPConnection._http_vsn_str = 'HTTP/1.0'
 
-import err,constant,login,sign
+import err,constant,login,sign,json
 import cookielib,sys,urllib2,urllib,BeautifulSoup,re,time
 
 # Exceptions
@@ -98,25 +98,12 @@ class Tieba:
         if not self.login_man.has_login():
             raise NotLoginError()
 
-        url = "http://tieba.baidu.com/i/sys/enter?ie=utf-8&kw=%s" % urllib2.quote(self.get_username().decode("utf-8").encode("gbk"))
-        furl = self.opener.open(url)
-
-        parser = BeautifulSoup.BeautifulSoup(furl)
-        favo_buf = parser.find("div",{"id":"always_go_list"}).find("ul")
+        url = 'http://tieba.baidu.com/i/sys/enter?ie=utf-8&kw=%s' % urllib2.quote(self.get_username().decode(constant.CODEC).encode("gbk"))
+        buf = self.opener.open(url).read()
+        favo_list_buf = re.findall(r'\$_likeForum=(.*?);',buf)[0]
         favo_list = []
-
-        MatchRE = re.compile(
-                r"""
-                \<a .*?\>(.+?)\</a\>
-                """,
-                flags = re.VERBOSE | re.UNICODE | re.DOTALL
-            )
-
-        for buf in favo_buf.fetch("li"):
-            r = MatchRE.findall(str(buf))[0]
-            if r != "添加":
-                favo_list.append(r)
-
+        for b in json.loads(favo_list_buf):
+            favo_list.append(b['name'].encode(constant.CODEC))
         return favo_list
 
     def set_username(self,uname): self.username = uname
@@ -127,8 +114,9 @@ class Tieba:
 
 if __name__ == "__main__":
     try:
-        tb = Tieba("1012278279","twansuixxxx")
+        tb = Tieba("rapid_test","520lmdforever")
         tb.login()
-        tb.sign_all(3)
+        for t in tb.get_favolist():
+            print t
     except err.EXC_rpbtman,e:
         print e.FormatStr()
