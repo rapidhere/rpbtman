@@ -140,7 +140,7 @@ class Login:
 
 if __name__ == "__main__":
     try:
-        log = Login("844122492","QQcd9412")
+        log = Login("","")
         log.sign_in()
     except err.EXC_rpbtman,x:
         print sys.exc_info().exc_traceback

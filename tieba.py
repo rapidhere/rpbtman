@@ -100,6 +100,7 @@ class Tieba:
 
         url = 'http://tieba.baidu.com/i/sys/enter?ie=utf-8&kw=%s' % urllib2.quote(self.get_username().decode(constant.CODEC).encode("gbk"))
         buf = self.opener.open(url).read()
+
         favo_list_buf = re.findall(r'\$_likeForum=(.*?);',buf)[0]
         favo_list = []
         for b in json.loads(favo_list_buf):
@@ -114,7 +115,7 @@ class Tieba:
 
 if __name__ == "__main__":
     try:
-        tb = Tieba("rapid_test","520lmdforever")
+        tb = Tieba("","")
         tb.login()
         for t in tb.get_favolist():
             print t
